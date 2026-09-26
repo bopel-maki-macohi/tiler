@@ -20,7 +20,14 @@ class PlayState extends FlxState
 		var graphic = FlxGraphic.fromBitmapData(image);
 		graphic.persist = true;
 
-		instance.images.push(graphic);
+		var dupeImage = false;
+		for (_image in instance.images)
+		{
+			if (dupeImage) break;
+			dupeImage = graphic.bitmap == _image.bitmap;
+		}
+
+		if (!dupeImage) instance.images.push(graphic);
 		refresh();
 	}
 
