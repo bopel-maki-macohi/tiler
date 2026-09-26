@@ -29,25 +29,37 @@ class PlayState extends FlxState
 	public static function getTileData(cursor:FlxSprite) return (cursor == null) ? null : new TileData(Math.floor(cursor.x / TileMap.TILE_SIZE),
 		Math.floor(cursor.y / TileMap.TILE_SIZE), instance.menubar.tile);
 
-	public static function placeTile(cursor:FlxSprite)
+	public static function canPlace(cursor:FlxSprite)
 	{
-		if (instance == null) return;
-		var tile = getTileData(cursor);
+		if (instance == null || cursor == null || !hasTiles()) return false;
+
 		var placeable = true;
 
+		var tile = getTileData(cursor);
 		for (_tile in instance.tilemap.tiles)
 		{
 			if (!placeable) break;
 			placeable = !_tile.is(tile);
 		}
 
-		if (placeable) instance.tilemap.tiles.push(tile);
+		return placeable;
+	}
+
+	public static function placeTile(cursor:FlxSprite)
+	{
+		if (instance == null) return;
+
+		var tile = getTileData(cursor);
+		if (tile != null) instance.tilemap.tiles.push(tile);
 	}
 
 	public static function removeTile(cursor:FlxSprite)
 	{
 		if (instance == null) return;
-		instance.tilemap.tiles.remove(getTileData(cursor));
+
+		var tile = getTileData(cursor);
+
+		for (_tile in instance.tilemap.tiles) if (_tile.is(tile)) instance.tilemap.tiles.remove(_tile);
 	}
 
 	public static function getTile(key:Int):FlxGraphicAsset return instance?.images[key] ?? null;

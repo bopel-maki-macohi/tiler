@@ -17,8 +17,6 @@ class TileMap extends FlxSpriteGroup
 		super();
 
 		cursor = new FlxSprite();
-		cursor.alpha = .25;
-
 		tile = new FlxSprite();
 	}
 
@@ -68,13 +66,10 @@ class TileMap extends FlxSpriteGroup
 		if (RIGHT) cursor.x += TILE_SIZE;
 
 		final ENTER = FlxG.keys.anyJustPressed([ENTER]);
-		final SHIFT_P = FlxG.keys.anyPressed([SHIFT]);
+		final DELETE = FlxG.keys.anyPressed([DELETE]);
 
-		if (ENTER) if (PlayState.hasTiles())
-		{
-			if (SHIFT_P) PlayState.removeTile(cursor);
-			else PlayState.placeTile(cursor);
-		}
+		if (ENTER) if (PlayState.hasTiles()) PlayState.placeTile(cursor);
+		if (DELETE) PlayState.removeTile(cursor);
 
 		PlayState.refresh();
 	}
@@ -82,9 +77,10 @@ class TileMap extends FlxSpriteGroup
 	public function refresh()
 	{
 		cursor.color = (PlayState.hasTiles()) ? 0xFFFFFFFF : 0xFFFF0000;
+		cursor.alpha = (PlayState.canPlace(cursor)) ? .25 : .125;
 
 		cursor.scale.set(1, 1);
-		
+
 		if (!PlayState.hasTiles())
 		{
 			cursor.makeGraphic(1, 1);
