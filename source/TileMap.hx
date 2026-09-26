@@ -54,7 +54,7 @@ class TileMap extends FlxSpriteGroup
 			tile.draw();
 		}
 
-		if (cursor != null)
+		if (cursor != null && cursor.visible)
 		{
 			cursor.cameras = cameras;
 			cursor.draw();

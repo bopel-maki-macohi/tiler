@@ -101,16 +101,15 @@ class PlayState extends FlxState
 
 	public static function loadMap(map:RawMapData)
 	{
+		if (instance == null) return;
+
 		for (image in map.images)
 		{
 			var img:BitmapData = BitmapData.fromBytes(Base64.decode(image));
 			loadImage(img);
 		}
 
-		if (instance != null)
-		{
-			instance.tilemap.tiles = [for (tile in map.tiles) new TileData(0,0,0).fromString(tile)];
-		}
+		instance.tilemap.tiles = [for (tile in map.tiles) new TileData(0, 0, 0).fromString(tile)];
 	}
 
 	public var images:Array<FlxGraphic> = [];
@@ -130,10 +129,10 @@ class PlayState extends FlxState
 		instance = null;
 		instance = this;
 
-		FlxG.cameras.reset(menubarCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height, 1));
-		FlxG.cameras.add(tilemapCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height, 1), false);
+		FlxG.cameras.reset(menubarCamera = new FlxCamera());
+		FlxG.cameras.add(tilemapCamera = new FlxCamera(), false);
 
-		FlxG.cameras.insert(menubarCamera, Math.floor(FlxG.cameras.list.length / 2), true);
+		FlxG.cameras.insert(menubarCamera, FlxG.cameras.list.length - 1, true);
 		menubarCamera.bgColor.alpha = 0;
 
 		add(menubar = new MenuBar());
@@ -151,7 +150,7 @@ class PlayState extends FlxState
 	{
 		super.update(elapsed);
 
-		tilemapCameraFollow.setPosition(tilemap.cursor.getGraphicMidpoint().x, tilemap.cursor.y);
+		if (tilemap.cursor.visible) tilemapCameraFollow.setPosition(tilemap.cursor.getGraphicMidpoint().x, tilemap.cursor.y);
 	}
 
 	override function destroy()

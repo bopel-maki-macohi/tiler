@@ -6,6 +6,11 @@
       "version": "6.2.0"
     },
     {
+      "name": "hscript",
+      "type": "haxelib",
+      "version": null
+    },
+    {
       "name": "hxcpp",
       "type": "haxelib",
       "version": null

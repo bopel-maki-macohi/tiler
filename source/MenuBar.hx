@@ -1,3 +1,4 @@
+import openfl.geom.Rectangle;
 import lime.app.Application;
 import openfl.utils.ByteArray;
 import openfl.display.DisplayObject;
@@ -30,6 +31,9 @@ class MenuBar extends FlxSpriteGroup
 
 	var importMap:FlxText;
 	var exportMap:FlxText;
+	#if EXPORT_MAP
+	var exportMapImage:FlxText;
+	#end
 
 	var position:FlxText;
 
@@ -54,11 +58,16 @@ class MenuBar extends FlxSpriteGroup
 		tileNumber.x = removeImage.x + removeImage.width + tileNumber.size;
 		tileNumber.y = tileNumber.size / 4;
 
-		add(importMap = new FlxText(0, 0, 0, 'Import Map', textSize));
+		add(importMap = new FlxText(0, 0, 0, 'Import Map Data', textSize));
 		importMap.y = importMap.size / 4;
 
-		add(exportMap = new FlxText(0, 0, 0, 'Export Map', textSize));
+		add(exportMap = new FlxText(0, 0, 0, 'Export Map Data', textSize));
 		exportMap.y = exportMap.size / 4;
+
+		#if EXPORT_MAP
+		add(exportMapImage = new FlxText(0, 0, 0, 'Export Map Image', textSize));
+		exportMapImage.y = exportMapImage.size / 4;
+		#end
 
 		add(position = new FlxText(0, 0, 0, 'Position', textSize));
 		position.y = position.size / 4;
@@ -81,6 +90,9 @@ class MenuBar extends FlxSpriteGroup
 
 		if (FlxG.mouse.overlaps(importMap)) onImportMapClicked();
 		if (FlxG.mouse.overlaps(exportMap)) onExportMapClicked();
+		#if EXPORT_MAP
+		if (FlxG.mouse.overlaps(exportMapImage)) onExportMapImageClicked();
+		#end
 	}
 
 	function onKeyPressed()
@@ -199,18 +211,85 @@ class MenuBar extends FlxSpriteGroup
 
 	final pngEncoder = new PNGEncoderOptions();
 
-	function onExportMapClicked()
+	function getDateStr()
 	{
 		var date = Date.now();
 		var dateStr = '${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${date.getTime() / 1000}';
 
+		return dateStr;
+	}
+
+	function onExportMapClicked()
+	{
 		var mapData:MapData = new MapData([for (tile in PlayState.getTiles()) tile.toString()], [
 			for (image in PlayState.getImages()) Base64.encode(image.bitmap.encode(image.bitmap.rect, pngEncoder))
 		]);
 
 		var fr:FileReference = new FileReference();
-		fr.save(Json.stringify(mapData, null, '\t'), 'TilerMap-${dateStr}.json');
+		fr.save(Json.stringify(mapData, null, '\t'), 'TilerMap-${getDateStr()}.json');
 	}
+
+	#if EXPORT_MAP
+	function onExportMapImageClicked()
+	{
+		var game = PlayState.instance;
+		if (game == null) return;
+
+		game.tilemap.cursor.visible = visible = false;
+
+		var lowestX = 0.0;
+		var lowestY = 0.0;
+		var highestX = 1.0;
+		var highestY = 1.0;
+
+		var highestXTile = -1;
+		var highestYTile = -1;
+
+		for (i => tile in game.tilemap.tiles)
+		{
+			final image = PlayState.getImage(tile.getKey());
+
+			final tx = tile.getX() * TileMap.TILE_SIZE;
+			final ty = -tile.getY() * TileMap.TILE_SIZE;
+			final tw = image.width;
+			final th = image.height;
+
+			if (tx < lowestX) lowestX = tx;
+			if (ty < lowestY) lowestY = ty;
+
+			if (tx + tw > highestX)
+			{
+				highestX = tx + tw;
+				highestXTile = i;
+			}
+			if (ty + th > highestY)
+			{
+				highestY = ty + th;
+				highestYTile = i;
+			}
+		}
+
+		final highestXImage = PlayState.getImage(highestXTile);
+		final highestYImage = PlayState.getImage(highestYTile);
+
+		final rect = new Rectangle(lowestX, lowestY, highestX + (highestXImage?.width ?? 0), highestY + (highestYImage?.height ?? 0));
+		final dimensions = [FlxG.stage.window.width, FlxG.stage.window.height];
+
+		FlxG.stage.window.resize(Math.floor(Math.abs(rect.width - rect.x)), Math.floor(Math.abs(rect.height - rect.y)));
+
+		game.tilemapCameraFollow.x = lowestX - dimensions[0] / 2;
+		game.tilemapCameraFollow.y = lowestY + dimensions[1] / 2;
+
+		final data:BitmapData = BitmapData.fromImage(FlxG.stage.window.readPixels());
+		final bytes:ByteArray = data.encode(data.rect, pngEncoder);
+		FlxG.stage.window.resize(dimensions[0], dimensions[1]);
+
+		var fr:FileReference = new FileReference();
+		fr.save(bytes, 'TilerMap-${getDateStr()}.png');
+
+		game.tilemap.cursor.visible = visible = true;
+	}
+	#end
 
 	public function incrementTile(amount:Int, ?refresh = true)
 	{
@@ -244,5 +323,10 @@ class MenuBar extends FlxSpriteGroup
 
 		exportMap.x = importMap.x + importMap.width + exportMap.size;
 		exportMap.color = (FlxG.mouse.overlaps(exportMap)) ? 0xFFFFFF00 : 0xFFFFFFFF;
+
+		#if EXPORT_MAP
+		exportMapImage.x = exportMap.x + exportMap.width + exportMapImage.size;
+		exportMapImage.color = (FlxG.mouse.overlaps(exportMapImage)) ? 0xFFFFFF00 : 0xFFFFFFFF;
+		#end
 	}
 }
