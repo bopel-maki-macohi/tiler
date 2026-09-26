@@ -126,6 +126,6 @@ class MenuBar extends FlxSpriteGroup
 		position.text = PlayState.getPositionText();
 		position.x = bg.width - position.size - position.width;
 
-		tileNumber.text = (PlayState.hasTiles()) ? 'Tile : $tile' : 'No Tiles';
+		tileNumber.text = 'Tile : ' + ((PlayState.hasTiles()) ? '${tile + 1} / ${PlayState.tiles().length}' : '0 / 0');
 	}
 }
