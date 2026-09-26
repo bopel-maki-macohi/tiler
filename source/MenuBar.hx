@@ -48,6 +48,7 @@ class MenuBar extends FlxSpriteGroup
 
 		if (FlxG.mouse.justMoved) onMouseMove();
 		if (FlxG.mouse.justPressed) onMouseClicked();
+		if (FlxG.keys.justPressed.ANY) onKeyPressed();
 	}
 
 	function onMouseMove()
@@ -63,6 +64,13 @@ class MenuBar extends FlxSpriteGroup
 	{
 		if (FlxG.mouse.overlaps(importImage)) onImportImageClicked();
 		if (FlxG.mouse.overlaps(tileNumber)) onTileNumberClicked();
+	}
+
+	function onKeyPressed()
+	{
+		var TAB = FlxG.keys.anyJustPressed([TAB]);
+
+		if (TAB) onTileNumberClicked();
 	}
 
 	function onImportImageClicked()
