@@ -58,10 +58,10 @@ class MenuBar extends FlxSpriteGroup
 		tileNumber.x = removeImage.x + removeImage.width + tileNumber.size;
 		tileNumber.y = tileNumber.size / 4;
 
-		add(importMap = new FlxText(0, 0, 0, 'Import Map Data', textSize));
+		add(importMap = new FlxText(0, 0, 0, 'Import Map', textSize));
 		importMap.y = importMap.size / 4;
 
-		add(exportMap = new FlxText(0, 0, 0, 'Export Map Data', textSize));
+		add(exportMap = new FlxText(0, 0, 0, 'Export Map', textSize));
 		exportMap.y = exportMap.size / 4;
 
 		#if EXPORT_MAP
