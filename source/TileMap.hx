@@ -33,10 +33,18 @@ class TileMap extends FlxSpriteGroup
 
 		if (tile != null) for (_tile in tiles)
 		{
-			final graphic = PlayState.getTile(_tile?.getKey() ?? null);
+			final key = _tile?.getKey() ?? null;
+			final graphic = (key == null || key < 0 || key > PlayState.tiles().length - 1) ? null : PlayState.getTile(key);
 
-			if (graphic != null && !graphic.isDestroyed) tile.loadGraphic(graphic);
-			else tile.loadGraphic('flixel/images/logo/default.png');
+			try
+			{
+				if (graphic != null && !graphic.isDestroyed) tile.loadGraphic(graphic);
+				else tile.loadGraphic('flixel/images/logo/default.png');
+			}
+			catch (e)
+			{
+				tile.loadGraphic('flixel/images/logo/default.png');
+			}
 
 			// tile.setGraphicSize(TILE_SIZE);
 
