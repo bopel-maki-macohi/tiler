@@ -66,7 +66,7 @@ class PlayState extends FlxState
 		if (instance == null) return;
 
 		var tile = getTileData(cursor);
-		for (_tile in instance.tilemap.tiles) if (_tile.is(tile)) instance.tilemap.tiles.remove(_tile);
+		for (_tile in instance.tilemap.tiles) if (_tile.is(tile) || tiles()[_tile.getKey()] == null) instance.tilemap.tiles.remove(_tile);
 	}
 
 	public static function getTile(key:Int):FlxGraphicAsset return instance?.images[key] ?? null;
