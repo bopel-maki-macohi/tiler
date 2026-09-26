@@ -80,6 +80,8 @@ class PlayState extends FlxState
 
 	public static function getTileNumber() return (instance == null) ? -1 : instance.menubar?.tile ?? -1;
 
+	public static function placedTiles() return instance?.tilemap?.tiles ?? [];
+
 	public var images:Array<FlxGraphic> = [];
 
 	public var menubar:MenuBar;
