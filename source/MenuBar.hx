@@ -110,7 +110,7 @@ class MenuBar extends FlxSpriteGroup
 		if (tile > PlayState.tiles().length - 1) tile = 0;
 		if (tile < 0) tile = PlayState.tiles().length - 1;
 
-		refresh();
+		PlayState.refresh();
 	}
 
 	public function refresh()

@@ -16,9 +16,7 @@ class TileMap extends FlxSpriteGroup
 	{
 		super();
 
-		cursor = new FlxSprite().makeGraphic(1, 1);
-		cursor.scale.set(TILE_SIZE, TILE_SIZE);
-		cursor.updateHitbox();
+		cursor = new FlxSprite();
 		cursor.alpha = .25;
 
 		tile = new FlxSprite();
@@ -84,5 +82,16 @@ class TileMap extends FlxSpriteGroup
 	public function refresh()
 	{
 		cursor.color = (PlayState.hasTiles()) ? 0xFFFFFFFF : 0xFFFF0000;
+
+		cursor.scale.set(1, 1);
+		
+		if (!PlayState.hasTiles())
+		{
+			cursor.makeGraphic(1, 1);
+			cursor.scale.set(TILE_SIZE, TILE_SIZE);
+		}
+		else cursor.loadGraphic(PlayState.getTile(PlayState.instance.menubar.tile));
+
+		cursor.updateHitbox();
 	}
 }

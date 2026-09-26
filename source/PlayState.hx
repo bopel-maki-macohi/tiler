@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxObject;
 import flixel.graphics.FlxGraphic;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.FlxSprite;
@@ -66,6 +67,8 @@ class PlayState extends FlxState
 	public var menubarCamera:FlxCamera;
 	public var tilemapCamera:FlxCamera;
 
+	public var tilemapCameraFollow:FlxObject;
+
 	override public function create()
 	{
 		super.create();
@@ -81,12 +84,20 @@ class PlayState extends FlxState
 
 		add(menubar = new MenuBar());
 
+		add(tilemapCameraFollow = new FlxObject());
 		add(tilemap = new TileMap());
-		tilemap.cameras = [tilemapCamera];
+		tilemapCameraFollow.cameras = tilemap.cameras = [tilemapCamera];
 
-		tilemapCamera.follow(tilemap.cursor);
+		tilemapCamera.follow(tilemapCameraFollow);
 
 		_refresh();
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+
+		tilemapCameraFollow.setPosition(tilemap.cursor.getGraphicMidpoint().x, tilemap.cursor.y);
 	}
 
 	override function destroy()
