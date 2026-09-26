@@ -91,7 +91,7 @@ class MenuBar extends FlxSpriteGroup
 					var loaderInfo:LoaderInfo = cast G.target;
 					loaderInfo.removeEventListener(Event.COMPLETE, onImageLoad);
 					var bmp:Bitmap = cast(loaderInfo.content, Bitmap);
-					PlayState.loadImage(bmp.bitmapData);
+					PlayState.loadImage(bmp.bitmapData, fr.name);
 				});
 				loader.loadBytes(fr.data);
 			}, false, 0, true);
@@ -110,9 +110,18 @@ class MenuBar extends FlxSpriteGroup
 	{
 		if (!PlayState.hasTiles()) return;
 
-		for (_tile in PlayState.placedTiles()) if (_tile.getKey() == tile) _tile.setKey(-1);
+		for (_tile in PlayState.placedTiles())
+		{
+			if (_tile.getKey() == tile) _tile.setKey(-1);
+			else _tile.setKey(_tile.getKey() - 1);
+		}
+
+		final finalEntry = tile == PlayState.tiles().length;
+		final firstEntry = tile == 0;
+
 		PlayState.tiles().remove(PlayState.tiles()[tile]);
-		incrementTile(-1);
+
+		incrementTile((finalEntry && firstEntry) ? 0 : (firstEntry) ? 0 : -1);
 	}
 
 	function onTileNumberClicked() incrementTile((FlxG.keys.pressed.SHIFT) ? -1 : 1);

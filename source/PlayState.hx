@@ -13,18 +13,18 @@ class PlayState extends FlxState
 {
 	public static var instance:PlayState;
 
-	public static function loadImage(image:BitmapData)
+	public static function loadImage(image:BitmapData, ?key:String)
 	{
 		if (instance == null || image == null) return;
 
-		var graphic = FlxGraphic.fromBitmapData(image);
+		var graphic = FlxGraphic.fromBitmapData(image, false, key);
 		graphic.persist = true;
 
 		var dupeImage = false;
 		for (_image in instance.images)
 		{
 			if (dupeImage) break;
-			dupeImage = graphic.bitmap == _image.bitmap;
+			dupeImage = graphic.key == _image.key;
 		}
 
 		if (!dupeImage) instance.images.push(graphic);
@@ -48,7 +48,7 @@ class PlayState extends FlxState
 		for (_tile in instance.tilemap.tiles)
 		{
 			if (!placeable) break;
-			placeable = !_tile.is(tile);
+			placeable = !_tile.samePosition(tile);
 		}
 		return placeable;
 	}
@@ -66,7 +66,7 @@ class PlayState extends FlxState
 		if (instance == null) return;
 
 		var tile = getTileData(cursor);
-		for (_tile in instance.tilemap.tiles) if (_tile.is(tile) || tiles()[_tile.getKey()] == null) instance.tilemap.tiles.remove(_tile);
+		for (_tile in instance.tilemap.tiles) if (_tile.samePosition(tile)) instance.tilemap.tiles.remove(_tile);
 	}
 
 	public static function getTile(key:Int):FlxGraphicAsset return instance?.images[key] ?? null;
