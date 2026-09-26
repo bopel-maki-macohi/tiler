@@ -15,6 +15,8 @@ enum abstract TileData(RawTileData) from RawTileData to RawTileData
 
 	public function getKey() return this.key;
 
+	public function setKey(key:Int) return this.key = key;
+
 	public function is(tiledata:TileData) return getX() == tiledata.getX() && getY() == tiledata.getY() && getKey() == tiledata.getKey();
 
 	@:to
