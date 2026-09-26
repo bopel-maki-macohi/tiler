@@ -66,7 +66,7 @@ class TileMap extends FlxSpriteGroup
 		if (RIGHT) cursor.x += TILE_SIZE;
 
 		final ENTER = FlxG.keys.anyJustPressed([ENTER]);
-		final DELETE = FlxG.keys.anyPressed([DELETE]);
+		final DELETE = FlxG.keys.anyJustPressed([DELETE, ESCAPE, BACKSPACE]);
 
 		if (ENTER) if (PlayState.hasTiles()) PlayState.placeTile(cursor);
 		if (DELETE) PlayState.removeTile(cursor);
