@@ -1,5 +1,6 @@
 package;
 
+import haxe.crypto.Base64;
 import flixel.FlxObject;
 import flixel.graphics.FlxGraphic;
 import flixel.system.FlxAssets.FlxGraphicAsset;
@@ -81,6 +82,36 @@ class PlayState extends FlxState
 	public static function getCurrentTile() return (instance == null) ? -1 : instance.menubar?.tile ?? -1;
 
 	public static function getTiles() return instance?.tilemap?.tiles ?? [];
+
+	public static function clearMap()
+	{
+		if (instance == null) return;
+
+		instance.tilemap.tiles = [];
+		instance.menubar.tile = 0;
+
+		for (image in instance.images)
+		{
+			FlxG.bitmap.removeByKey(image.key);
+			instance.images.remove(image);
+		}
+
+		instance.images = [];
+	}
+
+	public static function loadMap(map:RawMapData)
+	{
+		for (image in map.images)
+		{
+			var img:BitmapData = BitmapData.fromBytes(Base64.decode(image));
+			loadImage(img);
+		}
+
+		if (instance != null)
+		{
+			instance.tilemap.tiles = [for (tile in map.tiles) new TileData(0,0,0).fromString(tile)];
+		}
+	}
 
 	public var images:Array<FlxGraphic> = [];
 

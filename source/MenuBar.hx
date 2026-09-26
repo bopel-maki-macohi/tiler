@@ -1,3 +1,6 @@
+import lime.app.Application;
+import openfl.utils.ByteArray;
+import openfl.display.DisplayObject;
 import openfl.display.PNGEncoderOptions;
 import haxe.crypto.Base64;
 import haxe.Json;
@@ -145,7 +148,54 @@ class MenuBar extends FlxSpriteGroup
 
 	function onTileNumberClicked() incrementTile((FlxG.keys.pressed.SHIFT) ? -1 : 1);
 
-	function onImportMapClicked() {}
+	function onImportMapClicked()
+	{
+		function loadJson(data:ByteArray)
+		{
+			var jsonStr = data.toString();
+			var map:RawMapData = Json.parse(jsonStr);
+
+			if (map == null)
+			{
+				Application.current.window.alert('Map Data Null', 'Import Map Error');
+				return;
+			}
+
+			if (map.images == null)
+			{
+				Application.current.window.alert('Map Image Data Null', 'Import Map Error');
+				return;
+			}
+
+			if (map.tiles == null)
+			{
+				Application.current.window.alert('Map Tile Data Null', 'Import Map Error');
+				return;
+			}
+
+			PlayState.clearMap();
+			PlayState.loadMap(map);
+		}
+
+		var fr:FileReference = new FileReference();
+		fr.addEventListener(Event.SELECT, E ->
+		{
+			var onLoad:Event->Void;
+
+			trace('Loading File: ${fr.name}');
+			fr.addEventListener(Event.COMPLETE, onLoad = F ->
+			{
+				loadJson(fr.data);
+			}, false, 0, true);
+			fr.load();
+		}, false, 0, true);
+		// fr.addEventListener(Event.CANCEL, onCancel, false, 0, true);
+
+		var filters:Array<FileFilter> = new Array<FileFilter>();
+		filters.push(new FileFilter("JSON Files", "*.json"));
+
+		fr.browse(filters);
+	}
 
 	final pngEncoder = new PNGEncoderOptions();
 

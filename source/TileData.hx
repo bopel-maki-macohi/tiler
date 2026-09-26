@@ -13,7 +13,11 @@ enum abstract TileData(RawTileData) from RawTileData to RawTileData
 
 	public function getX() return data().x;
 
+	public function setX(x:Int) return data().x = x;
+
 	public function getY() return data().y;
+
+	public function setY(y:Int) return data().y = y;
 
 	public function getKey() return data().key;
 
@@ -25,4 +29,24 @@ enum abstract TileData(RawTileData) from RawTileData to RawTileData
 
 	@:to
 	public function toString():String return 'x_${getX()}@y_${getY()}@key_${getKey()}@';
+
+	public function fromString(str:String)
+	{
+		var splitStr = str.split('@');
+
+		for (piece in splitStr)
+		{
+			var prefix = piece.split('_')[0];
+			var suffix = piece.split('_')[1];
+
+			switch (prefix)
+			{
+				case 'x': setX(Std.parseInt(suffix));
+				case 'y': setY(Std.parseInt(suffix));
+				case 'key': setKey(Std.parseInt(suffix));
+			}
+		}
+
+		return this;
+	}
 }
