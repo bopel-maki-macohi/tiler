@@ -21,6 +21,8 @@ class MenuBar extends FlxSpriteGroup
 {
 	public var tile:Int = 0;
 
+	public var inExportMode = false;
+
 	final textSize = 16;
 
 	var bg:FlxSprite;
@@ -31,9 +33,7 @@ class MenuBar extends FlxSpriteGroup
 
 	var importMap:FlxText;
 	var exportMap:FlxText;
-	#if EXPORT_MAP
 	var exportMapImage:FlxText;
-	#end
 
 	var position:FlxText;
 
@@ -64,10 +64,8 @@ class MenuBar extends FlxSpriteGroup
 		add(exportMap = new FlxText(0, 0, 0, 'Export Map', textSize));
 		exportMap.y = exportMap.size / 4;
 
-		#if EXPORT_MAP
 		add(exportMapImage = new FlxText(0, 0, 0, 'Export Map Image', textSize));
 		exportMapImage.y = exportMapImage.size / 4;
-		#end
 
 		add(position = new FlxText(0, 0, 0, 'Position', textSize));
 		position.y = position.size / 4;
@@ -84,19 +82,21 @@ class MenuBar extends FlxSpriteGroup
 
 	function onMouseClicked()
 	{
+		if (inExportMode) return;
+
 		if (FlxG.mouse.overlaps(importImage)) onImportImageClicked();
 		if (FlxG.mouse.overlaps(removeImage)) onRemoveImageClicked();
 		if (FlxG.mouse.overlaps(tileNumber)) onTileNumberClicked();
 
 		if (FlxG.mouse.overlaps(importMap)) onImportMapClicked();
 		if (FlxG.mouse.overlaps(exportMap)) onExportMapClicked();
-		#if EXPORT_MAP
 		if (FlxG.mouse.overlaps(exportMapImage)) onExportMapImageClicked();
-		#end
 	}
 
 	function onKeyPressed()
 	{
+		if (inExportMode) return;
+
 		var TAB = FlxG.keys.anyJustPressed([TAB]);
 		if (TAB) onTileNumberClicked();
 	}
@@ -229,67 +229,70 @@ class MenuBar extends FlxSpriteGroup
 		fr.save(Json.stringify(mapData, null, '\t'), 'TilerMap-${getDateStr()}.json');
 	}
 
-	#if EXPORT_MAP
 	function onExportMapImageClicked()
 	{
-		var game = PlayState.instance;
+		final game = PlayState.instance;
 		if (game == null) return;
 
 		game.tilemap.cursor.visible = visible = false;
 
-		var lowestX = 0.0;
-		var lowestY = 0.0;
-		var highestX = 1.0;
-		var highestY = 1.0;
+		final window = FlxG.stage.window;
 
-		var highestXTile = -1;
-		var highestYTile = -1;
+		var lx = 0;
+		var ly = 0;
 
-		for (i => tile in game.tilemap.tiles)
+		var i0 = PlayState.getImage(PlayState.getCurrentTile());
+
+		var hx = i0?.width ?? TileMap.TILE_SIZE;
+		var hy = i0?.height ?? TileMap.TILE_SIZE;
+
+		for (i => tile in PlayState.getTiles())
 		{
-			final image = PlayState.getImage(tile.getKey());
+			final tX = tile.getX() * TileMap.TILE_SIZE;
+			final tY = tile.getY() * TileMap.TILE_SIZE;
 
-			final tx = tile.getX() * TileMap.TILE_SIZE;
-			final ty = -tile.getY() * TileMap.TILE_SIZE;
-			final tw = image.width;
-			final th = image.height;
+			var twidth = PlayState.getImage(tile.getKey()).width;
+			var theight = PlayState.getImage(tile.getKey()).height;
 
-			if (tx < lowestX) lowestX = tx;
-			if (ty < lowestY) lowestY = ty;
+			if (tX < lx) lx = tX;
+			if (tY < ly) ly = tY;
 
-			if (tx + tw > highestX)
-			{
-				highestX = tx + tw;
-				highestXTile = i;
-			}
-			if (ty + th > highestY)
-			{
-				highestY = ty + th;
-				highestYTile = i;
-			}
+			if (tX + twidth > hx) hx = tX + twidth;
+			if (tY + theight > hy) hy = tY + theight;
 		}
 
-		final highestXImage = PlayState.getImage(highestXTile);
-		final highestYImage = PlayState.getImage(highestYTile);
+		var nw = hx;
+		var nh = hy;
 
-		final rect = new Rectangle(lowestX, lowestY, highestX + (highestXImage?.width ?? 0), highestY + (highestYImage?.height ?? 0));
-		final dimensions = [FlxG.stage.window.width, FlxG.stage.window.height];
+		trace(nw = hx - lx);
+		trace(nh = hy - ly);
 
-		FlxG.stage.window.resize(Math.floor(Math.abs(rect.width - rect.x)), Math.floor(Math.abs(rect.height - rect.y)));
+		window.resize(nw, nh);
 
-		game.tilemapCameraFollow.x = lowestX - dimensions[0] / 2;
-		game.tilemapCameraFollow.y = lowestY + dimensions[1] / 2;
+		if (nw > nh) game.tilemapCamera.zoom = FlxG.width / nw;
+		else game.tilemapCamera.zoom = FlxG.height / nh;
 
+		final wx = game.tilemapCamera.gameToViewX(window.width);
+		final wy = game.tilemapCamera.gameToViewX(window.height);
+		game.tilemapCameraFollow.x = wx + (nw / 2) - wx;
+		game.tilemapCameraFollow.y = wy + (nh / 2) - wy;
+
+		inExportMode = true;
+	}
+
+	public function exportMapImageSecondPart()
+	{
 		final data:BitmapData = BitmapData.fromImage(FlxG.stage.window.readPixels());
 		final bytes:ByteArray = data.encode(data.rect, pngEncoder);
-		FlxG.stage.window.resize(dimensions[0], dimensions[1]);
 
 		var fr:FileReference = new FileReference();
 		fr.save(bytes, 'TilerMap-${getDateStr()}.png');
 
-		game.tilemap.cursor.visible = visible = true;
+		FlxG.stage.window.resize(FlxG.width, FlxG.height);
+		PlayState.instance.tilemap.cursor.visible = visible = true;
+
+		inExportMode = false;
 	}
-	#end
 
 	public function incrementTile(amount:Int, ?refresh = true)
 	{
@@ -324,9 +327,7 @@ class MenuBar extends FlxSpriteGroup
 		exportMap.x = importMap.x + importMap.width + exportMap.size;
 		exportMap.color = (FlxG.mouse.overlaps(exportMap)) ? 0xFFFFFF00 : 0xFFFFFFFF;
 
-		#if EXPORT_MAP
 		exportMapImage.x = exportMap.x + exportMap.width + exportMapImage.size;
 		exportMapImage.color = (FlxG.mouse.overlaps(exportMapImage)) ? 0xFFFFFF00 : 0xFFFFFFFF;
-		#end
 	}
 }

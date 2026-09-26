@@ -63,6 +63,8 @@ class TileMap extends FlxSpriteGroup
 
 	function onKeyPressed()
 	{
+		if (!cursor.visible) return;
+
 		final LEFT = FlxG.keys.anyJustPressed([A, LEFT]);
 		final DOWN = FlxG.keys.anyJustPressed([S, DOWN]);
 		final UP = FlxG.keys.anyJustPressed([W, UP]);

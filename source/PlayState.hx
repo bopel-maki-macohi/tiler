@@ -167,6 +167,24 @@ class PlayState extends FlxState
 		instance = this;
 	}
 
+	var exportTick = .0;
+
+	override function draw()
+	{
+		super.draw();
+
+		if (menubar.inExportMode)
+		{
+			exportTick += 1 / FlxG.drawFramerate;
+
+			if (exportTick > 1)
+			{
+				exportTick = 0;
+				menubar.exportMapImageSecondPart();
+			}
+		}
+	}
+
 	public function _refresh()
 	{
 		menubar.incrementTile(0, false);
