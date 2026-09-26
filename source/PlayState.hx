@@ -1,5 +1,6 @@
 package;
 
+import flixel.graphics.FlxGraphic;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.FlxSprite;
 import flixel.FlxG;
@@ -15,7 +16,10 @@ class PlayState extends FlxState
 	{
 		if (instance == null || image == null) return;
 
-		instance.images.push(image);
+		var graphic = FlxGraphic.fromBitmapData(image);
+		graphic.persist = true;
+
+		instance.images.push(graphic);
 		refresh();
 	}
 
@@ -54,7 +58,7 @@ class PlayState extends FlxState
 
 	public static function tiles() return instance?.images ?? [];
 
-	public var images:Array<BitmapData> = [];
+	public var images:Array<FlxGraphic> = [];
 
 	public var menubar:MenuBar;
 	public var tilemap:TileMap;
