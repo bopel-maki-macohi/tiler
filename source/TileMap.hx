@@ -34,7 +34,7 @@ class TileMap extends FlxSpriteGroup
 		if (tile != null) for (_tile in tiles)
 		{
 			final key = _tile?.getKey() ?? null;
-			final graphic = (key == null || key < 0 || key > PlayState.tiles().length - 1) ? null : PlayState.getTile(key);
+			final graphic = (key == null || key < 0 || key > PlayState.getImages().length - 1) ? null : PlayState.getImage(key);
 
 			try
 			{
@@ -76,7 +76,7 @@ class TileMap extends FlxSpriteGroup
 		final ENTER = FlxG.keys.anyJustPressed([ENTER]);
 		final DELETE = FlxG.keys.anyJustPressed([DELETE, ESCAPE, BACKSPACE]);
 
-		if (ENTER) if (PlayState.hasTiles()) PlayState.placeTile(cursor);
+		if (ENTER) if (PlayState.hadImages()) PlayState.placeTile(cursor);
 		if (DELETE) PlayState.removeTile(cursor);
 
 		PlayState.refresh();
@@ -84,17 +84,17 @@ class TileMap extends FlxSpriteGroup
 
 	public function refresh()
 	{
-		cursor.color = (PlayState.hasTiles()) ? 0xFFFFFFFF : 0xFFFF0000;
+		cursor.color = (PlayState.hadImages()) ? 0xFFFFFFFF : 0xFFFF0000;
 		cursor.alpha = (PlayState.canPlace(cursor)) ? .25 : .125;
 
 		cursor.scale.set(1, 1);
 
-		if (!PlayState.hasTiles())
+		if (!PlayState.hadImages())
 		{
 			cursor.makeGraphic(1, 1);
 			cursor.scale.set(TILE_SIZE, TILE_SIZE);
 		}
-		else cursor.loadGraphic(PlayState.getTile(PlayState.getTileNumber()));
+		else cursor.loadGraphic(PlayState.getImage(PlayState.getCurrentTile()));
 
 		cursor.updateHitbox();
 	}

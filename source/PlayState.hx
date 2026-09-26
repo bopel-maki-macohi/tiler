@@ -31,7 +31,7 @@ class PlayState extends FlxState
 		refresh();
 	}
 
-	public static function hasTiles() return (instance?.images ?? []).length > 0;
+	public static function hadImages() return (instance?.images ?? []).length > 0;
 
 	public static function getTileData(cursor:FlxSprite)
 	{
@@ -41,7 +41,7 @@ class PlayState extends FlxState
 
 	public static function canPlace(cursor:FlxSprite)
 	{
-		if (instance == null || cursor == null || !hasTiles()) return false;
+		if (instance == null || cursor == null || !hadImages()) return false;
 
 		var placeable = true;
 		var tile = getTileData(cursor);
@@ -69,18 +69,18 @@ class PlayState extends FlxState
 		for (_tile in instance.tilemap.tiles) if (_tile.samePosition(tile)) instance.tilemap.tiles.remove(_tile);
 	}
 
-	public static function getTile(key:Null<Int>) return (key == null) ? null : instance?.images[key] ?? null;
+	public static function getImage(key:Null<Int>) return (key == null) ? null : instance?.images[key] ?? null;
 
 	public static function getPositionText()
 		return (instance?.tilemap?.cursor == null) ? '(X: N / A | Y: N / A)' : '(X: ${Math.floor(instance.tilemap.cursor.x / TileMap.TILE_SIZE)} | Y: ${Math.floor(instance.tilemap.cursor.y / TileMap.TILE_SIZE)})';
 
 	public static function refresh() if (instance != null) instance._refresh();
 
-	public static function tiles() return instance?.images ?? [];
+	public static function getImages() return instance?.images ?? [];
 
-	public static function getTileNumber() return (instance == null) ? -1 : instance.menubar?.tile ?? -1;
+	public static function getCurrentTile() return (instance == null) ? -1 : instance.menubar?.tile ?? -1;
 
-	public static function placedTiles() return instance?.tilemap?.tiles ?? [];
+	public static function getTiles() return instance?.tilemap?.tiles ?? [];
 
 	public var images:Array<FlxGraphic> = [];
 
