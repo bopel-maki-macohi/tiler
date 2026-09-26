@@ -4,7 +4,7 @@ import flixel.group.FlxSpriteGroup;
 
 class TileMap extends FlxSpriteGroup
 {
-	public static final TILE_SIZE:Int = 16;
+	public static var TILE_SIZE:Int = 16;
 
 	public var tiles:Array<TileData> = [];
 
@@ -86,7 +86,7 @@ class TileMap extends FlxSpriteGroup
 			cursor.makeGraphic(1, 1);
 			cursor.scale.set(TILE_SIZE, TILE_SIZE);
 		}
-		else cursor.loadGraphic(PlayState.getTile(PlayState.instance.menubar.tile));
+		else cursor.loadGraphic(PlayState.getTile(PlayState.getTileNumber()));
 
 		cursor.updateHitbox();
 	}

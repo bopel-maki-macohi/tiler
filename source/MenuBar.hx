@@ -17,6 +17,7 @@ class MenuBar extends FlxSpriteGroup
 	var bg:FlxSprite;
 
 	var importImage:FlxText;
+	var removeImage:FlxText;
 	var tileNumber:FlxText;
 
 	var position:FlxText;
@@ -34,8 +35,12 @@ class MenuBar extends FlxSpriteGroup
 		importImage.x = importImage.size;
 		importImage.y = importImage.size / 4;
 
-		add(tileNumber = new FlxText(0, 0, 0, 'Tile : #', 16));
-		tileNumber.x = importImage.x + importImage.width + tileNumber.size;
+		add(removeImage = new FlxText(0, 0, 0, 'Remove Image', 16));
+		removeImage.x = importImage.x + importImage.width + removeImage.size;
+		removeImage.y = removeImage.size / 4;
+
+		add(tileNumber = new FlxText(0, 0, 0, 'Tile : # / #', 16));
+		tileNumber.x = removeImage.x + removeImage.width + tileNumber.size;
 		tileNumber.y = tileNumber.size / 4;
 
 		add(position = new FlxText(0, 0, 0, 'Position', 16));
@@ -46,30 +51,21 @@ class MenuBar extends FlxSpriteGroup
 	{
 		super.update(elapsed);
 
-		if (FlxG.mouse.justMoved) onMouseMove();
+		if (FlxG.mouse.justMoved) PlayState.refresh();
 		if (FlxG.mouse.justPressed) onMouseClicked();
 		if (FlxG.keys.justPressed.ANY) onKeyPressed();
-	}
-
-	function onMouseMove()
-	{
-		importImage.color = 0xFFFFFFFF;
-		if (FlxG.mouse.overlaps(importImage)) importImage.color = 0xFFFFFF00;
-
-		tileNumber.color = (PlayState.hasTiles()) ? 0xFFFFFFFF : 0xFFFF0000;
-		if (FlxG.mouse.overlaps(tileNumber)) tileNumber.color = 0xFFFFFF00;
 	}
 
 	function onMouseClicked()
 	{
 		if (FlxG.mouse.overlaps(importImage)) onImportImageClicked();
+		if (FlxG.mouse.overlaps(removeImage)) onRemoveImageClicked();
 		if (FlxG.mouse.overlaps(tileNumber)) onTileNumberClicked();
 	}
 
 	function onKeyPressed()
 	{
 		var TAB = FlxG.keys.anyJustPressed([TAB]);
-
 		if (TAB) onTileNumberClicked();
 	}
 
@@ -110,22 +106,41 @@ class MenuBar extends FlxSpriteGroup
 		fr.browse(filters);
 	}
 
-	function onTileNumberClicked()
+	function onRemoveImageClicked()
 	{
-		if (FlxG.keys.pressed.SHIFT) tile--;
-		else tile++;
+		if (!PlayState.hasTiles()) return;
+
+		PlayState.tiles().remove(PlayState.tiles()[PlayState.getTileNumber()]);
+		incrementTile(-1);
+	}
+
+	function onTileNumberClicked() incrementTile((FlxG.keys.pressed.SHIFT) ? -1 : 1);
+
+	public function incrementTile(amount:Int, ?refresh = true)
+	{
+		tile += amount;
 
 		if (tile > PlayState.tiles().length - 1) tile = 0;
 		if (tile < 0) tile = PlayState.tiles().length - 1;
 
-		PlayState.refresh();
+		if (refresh) PlayState.refresh();
 	}
 
 	public function refresh()
 	{
+		incrementTile(0, false);
+
 		position.text = PlayState.getPositionText();
 		position.x = bg.width - position.size - position.width;
 
+		importImage.color = (FlxG.mouse.overlaps(importImage)) ? 0xFFFFFF00 : 0xFFFFFFFF;
+
 		tileNumber.text = 'Tile : ' + ((PlayState.hasTiles()) ? '${tile + 1} / ${PlayState.tiles().length}' : '0 / 0');
+		tileNumber.color = (PlayState.hasTiles()) ? 0xFFFFFFFF : 0xFFFF0000;
+		if (FlxG.mouse.overlaps(tileNumber) && (PlayState.hasTiles())) tileNumber.color = 0xFFFFFF00;
+
+		removeImage.color = (PlayState.hasTiles()) ? 0xFFFFFFFF : 0xFF222222;
+		removeImage.alpha = (PlayState.hasTiles()) ? 1 : 0.5;
+		if (FlxG.mouse.overlaps(removeImage) && (PlayState.hasTiles())) removeImage.color = 0xFFFFFF00;
 	}
 }

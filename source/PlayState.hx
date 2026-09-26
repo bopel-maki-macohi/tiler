@@ -24,24 +24,25 @@ class PlayState extends FlxState
 		refresh();
 	}
 
-	public static function hasTiles() return (instance == null) ? false : instance.images.length > 0;
+	public static function hasTiles() return (instance?.images ?? []).length > 0;
 
-	public static function getTileData(cursor:FlxSprite) return (cursor == null) ? null : new TileData(Math.floor(cursor.x / TileMap.TILE_SIZE),
-		Math.floor(cursor.y / TileMap.TILE_SIZE), instance.menubar.tile);
+	public static function getTileData(cursor:FlxSprite)
+	{
+		if (cursor == null) return null;
+		return new TileData(Math.floor(cursor.x / TileMap.TILE_SIZE), Math.floor(cursor.y / TileMap.TILE_SIZE), instance.menubar.tile);
+	}
 
 	public static function canPlace(cursor:FlxSprite)
 	{
 		if (instance == null || cursor == null || !hasTiles()) return false;
 
 		var placeable = true;
-
 		var tile = getTileData(cursor);
 		for (_tile in instance.tilemap.tiles)
 		{
 			if (!placeable) break;
 			placeable = !_tile.is(tile);
 		}
-
 		return placeable;
 	}
 
@@ -58,7 +59,6 @@ class PlayState extends FlxState
 		if (instance == null) return;
 
 		var tile = getTileData(cursor);
-
 		for (_tile in instance.tilemap.tiles) if (_tile.is(tile)) instance.tilemap.tiles.remove(_tile);
 	}
 
@@ -70,6 +70,8 @@ class PlayState extends FlxState
 	public static function refresh() if (instance != null) instance._refresh();
 
 	public static function tiles() return instance?.images ?? [];
+
+	public static function getTileNumber() return (instance == null) ? -1 : instance.menubar?.tile ?? -1;
 
 	public var images:Array<FlxGraphic> = [];
 
@@ -128,6 +130,8 @@ class PlayState extends FlxState
 
 	public function _refresh()
 	{
+		menubar.incrementTile(0, false);
+
 		tilemap.refresh();
 		menubar.refresh();
 	}
