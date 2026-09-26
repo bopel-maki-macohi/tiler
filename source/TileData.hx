@@ -9,18 +9,20 @@ enum abstract TileData(RawTileData) from RawTileData to RawTileData
 		};
 	}
 
-	public function getX() return this.x;
+	public function data() return this;
 
-	public function getY() return this.y;
+	public function getX() return data().x;
 
-	public function getKey() return this.key;
+	public function getY() return data().y;
 
-	public function setKey(key:Int) return this.key = key;
+	public function getKey() return data().key;
+
+	public function setKey(key:Int) return data().key = key;
 
 	public function samePosition(tiledata:TileData) return getX() == tiledata.getX() && getY() == tiledata.getY();
 
 	public function is(tiledata:TileData) return samePosition(tiledata) && getKey() == tiledata.getKey();
 
 	@:to
-	public function toString():String return 'x_${this.x}@y_${this.y}@key_${this.key}@';
+	public function toString():String return 'x_${getX()}@y_${getY()}@key_${getKey()}@';
 }

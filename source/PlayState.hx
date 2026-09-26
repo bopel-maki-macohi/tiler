@@ -69,7 +69,7 @@ class PlayState extends FlxState
 		for (_tile in instance.tilemap.tiles) if (_tile.samePosition(tile)) instance.tilemap.tiles.remove(_tile);
 	}
 
-	public static function getTile(key:Int):FlxGraphicAsset return instance?.images[key] ?? null;
+	public static function getTile(key:Null<Int>) return (key == null) ? null : instance?.images[key] ?? null;
 
 	public static function getPositionText()
 		return (instance?.tilemap?.cursor == null) ? '(X: N / A | Y: N / A)' : '(X: ${Math.floor(instance.tilemap.cursor.x / TileMap.TILE_SIZE)} | Y: ${Math.floor(instance.tilemap.cursor.y / TileMap.TILE_SIZE)})';

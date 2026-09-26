@@ -110,16 +110,18 @@ class MenuBar extends FlxSpriteGroup
 	{
 		if (!PlayState.hasTiles()) return;
 
+		var image = PlayState.tiles()[tile];
+
 		for (_tile in PlayState.placedTiles())
 		{
-			if (_tile.getKey() == tile) _tile.setKey(-1);
-			else _tile.setKey(_tile.getKey() - 1);
+			if (_tile.getKey() == tile) PlayState.placedTiles().remove(_tile);
+			else if (_tile.getKey() > tile) _tile.setKey(_tile.getKey() - 1);
 		}
 
 		final finalEntry = tile == PlayState.tiles().length;
 		final firstEntry = tile == 0;
 
-		PlayState.tiles().remove(PlayState.tiles()[tile]);
+		PlayState.tiles().remove(image);
 
 		incrementTile((finalEntry && firstEntry) ? 0 : (firstEntry) ? 0 : -1);
 	}
